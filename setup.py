@@ -41,7 +41,7 @@ setup(
     long_description=open('README.txt').read() + '\n\n' + open('CHANGELOG.txt').read(),
     url='https://github.com/IvanBongiorni/maximal',
     author='Ivan Bongiorni',
-    author_email='ivanbongiorni@protonmail.com'
+    author_email='ivanbongiorni@protonmail.com',
     license='MIT',
     classifiers=classifiers,
     long_description=open('README.md').read(),
