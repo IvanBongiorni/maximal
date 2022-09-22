@@ -38,7 +38,7 @@ setup(
     name='maximal',
     version=0.3,
     description='TensorFlow-compatible Transformer layers and models.',
-    long_description=open('README.md').read() + '\n\n' + open('CHANGELOG.txt').read(),
+    #long_description=open('README.md').read() + '\n\n' + open('CHANGELOG.txt').read(),
     url='https://github.com/IvanBongiorni/maximal',
     author='Ivan Bongiorni',
     author_email='ivanbongiorni@protonmail.com',
