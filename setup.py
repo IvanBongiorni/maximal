@@ -29,7 +29,7 @@ classifiers=[
         'Development Status :: 4 - Beta',   # 3: 'Alpha'; 4: 'Beta'; 5: 'Production/Stable'
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence :: AI :: Machine Learning :: NLP :: Natural Language Processing'
+        'Topic :: Scientific/Engineering',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3'
   ]
