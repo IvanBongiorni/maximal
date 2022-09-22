@@ -12,7 +12,7 @@ Built on TensorFlow 2.
 Its installation is straightforward:
 
 ```
-pip install tensorform
+pip install maximal
 ```
 
 <br>
