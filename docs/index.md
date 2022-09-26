@@ -36,3 +36,5 @@ A TensorFlow-compatible Python library that provides models and layers to implem
 [GitHub](https://github.com/IvanBongiorni)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 [LinkedIn](https://www.linkedin.com/in/ivan-bongiorni-b8a583164/)
+
+ivanbongiorni@protonmail.com 
