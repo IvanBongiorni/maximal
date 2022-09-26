@@ -1,6 +1,6 @@
-# SelfAttention()
+# MultiHeadSelfAttention()
 
-Implements *Scaled Dot-Product Attention* as in the original [Transformer paper](https://arxiv.org/abs/1706.03762), where Q, K, V are the same tensor.
+*Multi Head Self-Attention* layer, it is a concatenation of `SelfAttention()` layers. (`tensorflow.keras.layers.Layer`)
 
 Inherits from [tensorflow.keras.layers.Layer](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Layer).
 
