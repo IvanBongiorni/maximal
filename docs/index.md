@@ -7,10 +7,10 @@ A TensorFlow-compatible Python library that provides models and layers to implem
 ## Structure of the library:
 
 - `layers`
-  - `class SelfAttention`. Self-Attention implementation.
-  - `class MultiHeadSelfAttention`. Multi Head Self-Attention implementation.
-  - `class PositionalEmbedding`. Embeddings of tokens end positions.
-  - `class TransformerLayer`. Transformer Encoder layer.
+  - class [SelfAttention](https://ivanbongiorni.github.io/maximal/elements/selfattention.html). Self-Attention implementation.
+  - class [MultiHeadSelfAttention](https://ivanbongiorni.github.io/maximal/elements/multiheadselfattention.html). Multi Head Self-Attention implementation.
+  - class [PositionalEmbedding](https://ivanbongiorni.github.io/maximal/elements/positionalembedding.html). Embeddings of tokens end positions.
+  - class [TransformerLayer](https://ivanbongiorni.github.io/maximal/elements/transformerlayer.html). Transformer Encoder layer.
   - class TransformerDecoderLayer (coming soon)
   - class FNetLayer (coming soon)
   - class ConformerLayer (coming soon)
