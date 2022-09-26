@@ -23,7 +23,7 @@ A TensorFlow-compatible Python library that provides models and layers to implem
   - class Conformer
 
 - `schedules`
-  - `class OriginalTransformerSchedule`. From the original [Transformer paper](https://arxiv.org/abs/1706.03762).
+  - class [OriginalTransformerSchedule](https://ivanbongiorni.github.io/maximal/elements/originaltransformerschedule.html). From the original [Transformer paper](https://arxiv.org/abs/1706.03762).
 
 ## Tutorials
 - [A Transformer Neural Network for Sentiment Analysis](https://ivanbongiorni.github.io/maximal/tutorials/sentiment_analysis.html). ([Google Colab](https://colab.research.google.com/drive/1j0vDhAZX7Ni_sdCDb0C1veMtW3FEXlRD?usp=sharing))

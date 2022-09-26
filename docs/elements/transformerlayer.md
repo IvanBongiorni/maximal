@@ -16,3 +16,6 @@ Inherits from [tensorflow.keras.layers.Layer](https://www.tensorflow.org/api_doc
 
 ## Returns
   - `pwff_output`: (tf.tensor) Layer's output.
+
+## Used in tutorial
+- A Transformer Neural Network for Sentiment Analysis. ([Google Colab](https://colab.research.google.com/drive/1j0vDhAZX7Ni_sdCDb0C1veMtW3FEXlRD?usp=sharing))
