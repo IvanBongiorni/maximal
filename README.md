@@ -1,5 +1,7 @@
 # maximal
 
+See the [Documentation site](https://ivanbongiorni.github.io/maximal/)
+
 Current version: **0.3.0 (Beta)**
 
 A TensorFlow-compatible Python library that provides models and layers to implement custom Transformer neural networks.
