@@ -13,4 +13,4 @@ Inherits from [tensorflow.keras.optimizers.schedules.LearningRateSchedule](https
   - learning rate for each training step.
 
 ## Used in tutorial
-- A Transformer Neural Network for Sentiment Analysis. (Google Colab | NBViewr)
+- A Transformer Neural Network for Sentiment Analysis. ([Google Colab](https://colab.research.google.com/drive/1j0vDhAZX7Ni_sdCDb0C1veMtW3FEXlRD?usp=sharing))

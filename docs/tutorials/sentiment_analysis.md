@@ -2,7 +2,7 @@
 
 Author: [Ivan Bongiorni](https://github.com/IvanBongiorni) - 2022-09-25.
 
-Open this tutorial on Google Colab or NBViewer.
+Open this tutorial on [[Google Colaboratory](https://colab.research.google.com/drive/1j0vDhAZX7Ni_sdCDb0C1veMtW3FEXlRD?usp=sharing).
 
 <br>
 
