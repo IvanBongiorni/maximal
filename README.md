@@ -1,6 +1,6 @@
 # maximal
 
-See the [Documentation site](https://ivanbongiorni.github.io/maximal/)
+See the [Official Documentation site](https://ivanbongiorni.github.io/maximal/)
 
 Current version: **0.3.0 (Beta)**
 
