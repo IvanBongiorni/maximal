@@ -31,7 +31,7 @@ The central class in this tutorial is the Transformer layer. In order to include
 
 Additionally, the learning rate schedule of the [original Transformer paper](https://arxiv.org/abs/1706.03762) is added for demonstration purposes.
 ```
-import maximal as max
+import maximal
 from maximal.layers import PositionalEmbedding, TransformerLayer
 from maximal.schedules import OriginalTransformerSchedule
 ```
