@@ -8,8 +8,6 @@ A TensorFlow-compatible Python library that provides models and layers to implem
 
 Built on TensorFlow 2.
 
-<br>
-
 # Installation
 Its installation is straightforward:
 
@@ -17,21 +15,16 @@ Its installation is straightforward:
 pip install maximal
 ```
 
-<br>
-
 # How to use it?
 `maximal` is commonly called as:
 
 ```
-import maximal as max
+import maximal
+from maximal.layers import TransformerLayer
 ```
 
-<br>
-
 # Documentation
-An official [documentation website] with explanations and tutorials is on the way.
-
-<br>
+An [Official Website](https://ivanbongiorni.github.io/maximal/) is now available with documentation and tutorials.
 
 # Elements
 
@@ -47,20 +40,14 @@ In `layers.py`:
 In `schedules.py`:
 - `OriginalTransformerSchedule`: `keras.Layer` implements the learning rate schedule of the original Transformer paper. It is taken from this [official TensorFlow tutorial](https://www.tensorflow.org/text/tutorials/transformer).
 
-<br>
-
 # Requirements
 ```
 numpy
 tensorflow >= 2.0
 ```
 
-<br>
-
 # Author
 Ivan Bongiorni. [LinkedIn](https://www.linkedin.com/in/ivan-bongiorni-b8a583164/)
-
-<br>
 
 # License
 2020 Ivan Bongiorni
