@@ -46,9 +46,13 @@ class PositionalEmbedding(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config().copy()
         config.update({
+            'maxlen': self.maxlen,
+            'vocab_size': self.vocab_size,
+            'depth': self.depth,
             'token_embedding': self.token_embedding,
-            'position_embedding': self.position_embedding,
+            'position_embedding': self.position_embedding
         })
+        return config
 
 
 class Attention(tf.keras.layers.Layer):
@@ -102,10 +106,12 @@ class Attention(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config().copy()
         config.update({
+            'depth': self.depth,
             'dense_q': self.dense_q,
             'dense_k': self.dense_k,
-            'dense_v': self.dense_v,
+            'dense_v': self.dense_v
         })
+        return config
 
 
 class MultiHeadAttention(tf.keras.layers.Layer):
@@ -150,10 +156,13 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config().copy()
         config.update({
+            'heads': self.heads,
+            'depth': self.depth,
             'attention_heads': self.attention_heads,
             'concat': self.concat,
             'dense': self.dense,
         })
+        return config
 
 
 class TransformerLayer(tf.keras.layers.Layer):
@@ -175,14 +184,138 @@ class TransformerLayer(tf.keras.layers.Layer):
     Returns:
         pwff_output: (tf.tensor) Layer output
     """
-    def __init__(self, depth, num_heads, ff_nodes, rate=0.1):
+    def __init__(self, depth, heads, ff_nodes, rate=0.1):
         super(TransformerLayer, self).__init__()
+        self.depth = depth
+        self.heads = heads
+        self.ff_nodes = ff_nodes
+        self.rate = rate
+
+        self.attention = MultiHeadAttention(heads=heads, depth=depth)
+
+        self.pwff1 = tf.keras.layers.Dense(ff_nodes, activation="relu")
+        self.pwff2 = tf.keras.layers.Dense(depth, activation='linear')
+
+        self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.dropout1 = tf.keras.layers.Dropout(rate)
+        self.dropout2 = tf.keras.layers.Dropout(rate)
+
+    def call(self, input_tensor, mask=None):
+        # Self-Attention part
+        multihead_attention = self.attention(input_tensor, input_tensor, input_tensor, mask)
+        multihead_attention = self.dropout1(multihead_attention)
+        tensor_attentioned = input_tensor + multihead_attention
+        tensor_attentioned = self.layernorm1(tensor_attentioned)
+
+        # Pointwise FFNN part
+        pwff_output = self.pwff1(tensor_attentioned)
+        pwff_output = self.pwff2(pwff_output)
+        pwff_output = self.dropout2(pwff_output)
+        pwff_output = tensor_attentioned + pwff_output
+        pwff_output = self.layernorm2(pwff_output)
+
+        return pwff_output
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'depth': self.depth,
+            'heads': self.heads,
+            'ff_nodes': self.ff_nodes,
+            'rate': self.rate,
+
+            'attention': self.attention,
+            'pwff1': self.pwff1,
+            'pwff2': self.pwff2,
+            'layernorm1': self.layernorm1,
+            'layernorm2': self.layernorm2,
+            'dropout1': self.dropout1,
+            'dropout2': self.dropout2,
+        })
+        return config
+
+
+class TransformerDecoderLayer(tf.keras.layers.Layer):
+
+    def __init__(self, depth,  heads, ff_nodes, rate=0.1):
+        super(TransformerDecoderLayer, self).__init__()
+        self.depth = depth
+        self.heads = heads
+        self.ff_nodes = ff_nodes
+        self.rate = rate
+
+        self.masked_attention = MultiHeadAttention(heads=heads, depth=depth)
+        self.cross_attention = MultiHeadAttention(heads=heads, depth=depth)
+
+        self.pwff1 = tf.keras.layers.Dense(ff_nodes, activation="relu")
+        self.pwff2 = tf.keras.layers.Dense(depth, activation='linear')
+
+        self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+        self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+
+        self.dropout1 = tf.keras.layers.Dropout(rate)
+        self.dropout2 = tf.keras.layers.Dropout(rate)
+        self.dropout3 = tf.keras.layers.Dropout(rate)
+
+    def call(self, x, context, mask):
+        # First Attention mechanism: masked Self-Attention
+        masked_attention = self.masked_attention(q=x, k=x, v=x, mask=mask)
+        masked_attention = self.dropout1(masked_attention)
+        tensor_attentioned = x + masked_attention
+        tensor_attentioned = self.layernorm1(tensor_attentioned)
+
+        # Second Attention mechanism: Cross-Attention (unmasked)
+        cross_attention = self.cross_attention(q=tensor_attentioned, k=context, v=context)
+        cross_attention = self.dropout2(cross_attention)
+        tensor_attentioned = tensor_attentioned + cross_attention
+        tensor_attentioned = self.layernorm2(tensor_attentioned)
+
+        # Final part is Pointwise FFNN
+        pwff_output = self.pwff1(tensor_attentioned)
+        pwff_output = self.pwff2(pwff_output)
+        pwff_output = self.dropout3(pwff_output)
+        pwff_output = tensor_attentioned + pwff_output
+        pwff_output = self.layernorm3(pwff_output)
+
+        return pwff_output
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'depth': self.depth,
+            'heads': self.heads,
+            'ff_nodes': self.ff_nodes,
+            'rate': self.rate,
+            'masked_attention': self.masked_attention,
+            'cross_attention': self.cross_attention,
+            'pwff1': self.pwff1,
+            'pwff2': self.pwff2,
+            'layernorm1': self.layernorm1,
+            'layernorm2': self.layernorm2,
+            'layernorm3': self.layernorm3,
+            'dropout1': self.dropout1,
+            'dropout2': self.dropout2,
+            'dropout3': self.dropout3
+        })
+        return config
+
+
+class GPTLayer(TransformerLayer):
+    """
+    This is a wrapper around TransformerLayer
+    """
+    def __init__(self, input_len, depth, num_heads, ff_nodes, rate=0.1):
+        super(GPTLayer, self).__init__(input_len, depth, num_heads, ff_nodes, rate=0.1)
+        self.input_len = input_len
         self.depth = depth
         self.num_heads = num_heads
         self.ff_nodes = ff_nodes
         self.rate = rate
 
         self.attention = MultiHeadAttention(heads=num_heads, depth=depth)
+
         self.pointwise_ffnn = tf.keras.models.Sequential([
             tf.keras.layers.Dense(ff_nodes, activation="relu"),
             tf.keras.layers.Dense(depth, activation='linear')
@@ -191,6 +324,8 @@ class TransformerLayer(tf.keras.layers.Layer):
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.dropout1 = tf.keras.layers.Dropout(rate)
         self.dropout2 = tf.keras.layers.Dropout(rate)
+
+        self.mask = generate_attention_mask(input_len)
 
     def call(self, input_tensor, mask=None):
         # Self-Attention part
@@ -217,56 +352,4 @@ class TransformerLayer(tf.keras.layers.Layer):
             'dropout1': self.dropout1,
             'dropout2': self.dropout2,
         })
-
-
-class TransformerDecoderLayer(tf.keras.layers.Layer):
-
-    def __init__(self, depth,  num_heads, ff_nodes, rate=0.1):
-        super(TransformerDecoderLayer, self).__init__()
-        self.depth = depth
-        self.num_heads = num_heads
-        self.ff_nodes = ff_nodes
-        self.rate = rate
-
-        self.masked_attention = MultiHeadAttention(heads=num_heads, depth=depth)
-        self.cross_attention = MultiHeadAttention(heads=num_heads, depth=depth)
-
-        self.pointwise_ffnn = tf.keras.models.Sequential([
-            tf.keras.layers.Dense(ff_nodes, activation="relu"),
-            tf.keras.layers.Dense(depth, activation='linear')
-        ])
-
-        self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-
-        self.dropout1 = tf.keras.layers.Dropout(rate)
-        self.dropout2 = tf.keras.layers.Dropout(rate)
-        self.dropout3 = tf.keras.layers.Dropout(rate)
-
-    def call(self, x, context, mask):
-        # First Attention mechanism: masked Self-Attention
-        masked_attention = self.masked_attention(q=x, k=x, v=x, mask=mask)
-        masked_attention = self.dropout1(masked_attention)
-        tensor_attentioned = x + masked_attention
-        tensor_attentioned = self.layernorm1(tensor_attentioned)
-
-        # Second Attention mechanism combining Encoder and Decoder information
-        cross_attention = self.cross_attention(q=tensor_attentioned, k=context, v=context)
-        cross_attention = self.dropout2(cross_attention)
-        tensor_attentioned = tensor_attentioned + cross_attention
-        tensor_attentioned = self.layernorm2(tensor_attentioned)
-
-        # Final part is Pointwise FFNN
-        pwff_output = self.pointwise_ffnn(tensor_attentioned)
-        pwff_output = self.dropout3(pwff_output)
-        pwff_output = tensor_attentioned + pwff_output
-        pwff_output = self.layernorm3(pwff_output)
-
-        return pwff_output
-
-    def get_config(self):
-        config = super().get_config().copy()
-        config.update({
-            'pwff': self.pwff
-        })
+        return config 
