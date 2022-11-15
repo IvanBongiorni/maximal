@@ -281,9 +281,11 @@ class TransformerDecoderLayer(tf.keras.layers.Layer):
         return config
 
 
+@tf.keras.utils.register_keras_serializable()
 class GPTLayer(TransformerLayer):
     """
-    This is a wrapper around TransformerLayer
+    This is a wrapper around TransformerLayer.
+    call() method has just predefined masked attention.
     """
     def __init__(self, input_len, depth, num_heads, ff_nodes, rate=0.1):
         super(GPTLayer, self).__init__(input_len, depth, num_heads, ff_nodes, rate=0.1)
@@ -293,22 +295,11 @@ class GPTLayer(TransformerLayer):
         self.ff_nodes = ff_nodes
         self.rate = rate
 
-        self.attention = MultiHeadAttention(heads=num_heads, depth=depth)
+        self.mask = maximal.generate_attention_mask(input_len)
 
-        self.pointwise_ffnn = tf.keras.models.Sequential([
-            tf.keras.layers.Dense(ff_nodes, activation="relu"),
-            tf.keras.layers.Dense(depth, activation='linear')
-        ])
-        self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.dropout1 = tf.keras.layers.Dropout(rate)
-        self.dropout2 = tf.keras.layers.Dropout(rate)
-
-        self.mask = generate_attention_mask(input_len)
-
-    def call(self, input_tensor, mask=None):
+    def call(self, input_tensor):
         # Self-Attention part
-        multihead_attention = self.attention(input_tensor, input_tensor, input_tensor, mask)
+        multihead_attention = self.attention(input_tensor, input_tensor, input_tensor, self.mask)
         multihead_attention = self.dropout1(multihead_attention)
         tensor_attentioned = input_tensor + multihead_attention
         tensor_attentioned = self.layernorm1(tensor_attentioned)
@@ -324,11 +315,10 @@ class GPTLayer(TransformerLayer):
     def get_config(self):
         config = super().get_config().copy()
         config.update({
-            'attention': self.attention,
-            'pwff': self.pwff,
-            'layernorm1': self.layernorm1,
-            'layernorm2': self.layernorm2,
-            'dropout1': self.dropout1,
-            'dropout2': self.dropout2,
+            'input_len': self.input_len,
+            'depth': self.depth,
+            'num_heads': self.num_heads,
+            'ff_nodes': self.ff_nodes,
+            'rate': self.rate
         })
         return config
