@@ -14,6 +14,7 @@ expand with: TransformerDecoderLayer(), FNetLayer
 import tensorflow as tf
 
 
+@tf.keras.utils.register_keras_serializable()
 class PositionalEmbedding(tf.keras.layers.Layer):
     """
     __init__ args:
@@ -27,8 +28,8 @@ class PositionalEmbedding(tf.keras.layers.Layer):
     Returns:
         embedding: (tf.tensor) Transformer Embeddings (word meaning + position)
     """
-    def __init__(self, maxlen, vocab_size, depth):
-        super(PositionalEmbedding, self).__init__()
+    def __init__(self, maxlen, vocab_size, depth, **kwargs):
+        super(PositionalEmbedding, self).__init__(**kwargs)
         self.maxlen = maxlen
         self.vocab_size = vocab_size
         self.depth = depth
@@ -48,13 +49,12 @@ class PositionalEmbedding(tf.keras.layers.Layer):
         config.update({
             'maxlen': self.maxlen,
             'vocab_size': self.vocab_size,
-            'depth': self.depth,
-            'token_embedding': self.token_embedding,
-            'position_embedding': self.position_embedding
+            'depth': self.depth
         })
         return config
 
 
+@tf.keras.utils.register_keras_serializable()
 class Attention(tf.keras.layers.Layer):
     """
     Scaled Dot Product Attention layer (tf.keras layer)
@@ -77,8 +77,8 @@ class Attention(tf.keras.layers.Layer):
     Returns:
         attention: (tf.tensor) attention tensor
     """
-    def __init__(self, depth):
-        super(Attention, self).__init__()
+    def __init__(self, depth, **kwargs):
+        super(Attention, self).__init__(**kwargs)
         self.depth = depth
 
         self.dense_q = tf.keras.layers.Dense(depth, activation='linear')
@@ -97,7 +97,7 @@ class Attention(tf.keras.layers.Layer):
         attention = attention / tf.math.sqrt(d_k)
 
         if mask is not None:
-            attention = attention + mask * -1e09
+            attention = tf.where(mask==1, -1e9, attention)
 
         attention = tf.nn.softmax(attention)
         attention = tf.matmul(attention, WV)
@@ -106,14 +106,12 @@ class Attention(tf.keras.layers.Layer):
     def get_config(self):
         config = super().get_config().copy()
         config.update({
-            'depth': self.depth,
-            'dense_q': self.dense_q,
-            'dense_k': self.dense_k,
-            'dense_v': self.dense_v
+            'depth': self.depth
         })
         return config
 
 
+@tf.keras.utils.register_keras_serializable()
 class MultiHeadAttention(tf.keras.layers.Layer):
     """
     Implements Multi Head Attention as a concatenation of Attention() layers.
@@ -133,8 +131,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     Returns:
         attention_output: (tf.tensor) Multi-Head Attention tensor
     """
-    def __init__(self, heads, depth):
-        super(MultiHeadAttention, self).__init__()
+    def __init__(self, heads, depth, **kwargs):
+        super(MultiHeadAttention, self).__init__(**kwargs)
         self.heads = heads
         self.depth = depth
 
@@ -157,14 +155,12 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         config = super().get_config().copy()
         config.update({
             'heads': self.heads,
-            'depth': self.depth,
-            'attention_heads': self.attention_heads,
-            'concat': self.concat,
-            'dense': self.dense,
+            'depth': self.depth
         })
         return config
 
 
+@tf.keras.utils.register_keras_serializable()
 class TransformerLayer(tf.keras.layers.Layer):
     """
     Transformer Encoder Layer.
@@ -184,8 +180,8 @@ class TransformerLayer(tf.keras.layers.Layer):
     Returns:
         pwff_output: (tf.tensor) Layer output
     """
-    def __init__(self, depth, heads, ff_nodes, rate=0.1):
-        super(TransformerLayer, self).__init__()
+    def __init__(self, depth, heads, ff_nodes, rate=0.1, **kwargs):
+        super(TransformerLayer, self).__init__(**kwargs)
         self.depth = depth
         self.heads = heads
         self.ff_nodes = ff_nodes
@@ -223,23 +219,16 @@ class TransformerLayer(tf.keras.layers.Layer):
             'depth': self.depth,
             'heads': self.heads,
             'ff_nodes': self.ff_nodes,
-            'rate': self.rate,
-
-            'attention': self.attention,
-            'pwff1': self.pwff1,
-            'pwff2': self.pwff2,
-            'layernorm1': self.layernorm1,
-            'layernorm2': self.layernorm2,
-            'dropout1': self.dropout1,
-            'dropout2': self.dropout2,
+            'rate': self.rate
         })
         return config
 
 
+@tf.keras.utils.register_keras_serializable()
 class TransformerDecoderLayer(tf.keras.layers.Layer):
 
-    def __init__(self, depth,  heads, ff_nodes, rate=0.1):
-        super(TransformerDecoderLayer, self).__init__()
+    def __init__(self, depth,  heads, ff_nodes, rate=0.1, **kwargs):
+        super(TransformerDecoderLayer, self).__init__(**kwargs)
         self.depth = depth
         self.heads = heads
         self.ff_nodes = ff_nodes
@@ -287,17 +276,7 @@ class TransformerDecoderLayer(tf.keras.layers.Layer):
             'depth': self.depth,
             'heads': self.heads,
             'ff_nodes': self.ff_nodes,
-            'rate': self.rate,
-            'masked_attention': self.masked_attention,
-            'cross_attention': self.cross_attention,
-            'pwff1': self.pwff1,
-            'pwff2': self.pwff2,
-            'layernorm1': self.layernorm1,
-            'layernorm2': self.layernorm2,
-            'layernorm3': self.layernorm3,
-            'dropout1': self.dropout1,
-            'dropout2': self.dropout2,
-            'dropout3': self.dropout3
+            'rate': self.rate
         })
         return config
 
@@ -352,4 +331,4 @@ class GPTLayer(TransformerLayer):
             'dropout1': self.dropout1,
             'dropout2': self.dropout2,
         })
-        return config 
+        return config
