@@ -6,11 +6,12 @@ Layers:
 - Attention(): layer for Scaled Dot Product Attention
 - MultiHeadAttention(): concatenations of multiple Attention() heads
 - TransformerLayer(): implementation of Encoder layer
-- GPTLayer(): implementation of Decoder layer
+- GPTLayer(): narrower version of TransformerLayer() class with causal masking to build GPT
 
 TODO:
 expand with: TransformerDecoderLayer(), FNetLayer
 """
+import numpy as np
 import tensorflow as tf
 
 
@@ -18,15 +19,15 @@ import tensorflow as tf
 class PositionalEmbedding(tf.keras.layers.Layer):
     """
     __init__ args:
-        maxlen: (int) maximum length of sentence
-        vocab_size: (int) vocabulary size
-        depth: (int) Embedding size - more generally, model depth in original paper
+        maxlen (int): maximum length of sentence
+        vocab_size (int): vocabulary size
+        depth (int): Embedding size - more generally, model depth in original paper
 
     call args:
-        x: (np.array) input tokens
+        x (np.array): input tokens
 
     Returns:
-        embedding: (tf.tensor) Transformer Embeddings (word meaning + position)
+        embedding (tf.tensor): Transformer Embeddings (word meaning + position)
     """
     def __init__(self, maxlen, vocab_size, depth, **kwargs):
         super(PositionalEmbedding, self).__init__(**kwargs)
@@ -64,18 +65,18 @@ class Attention(tf.keras.layers.Layer):
     attention mechanism combines Encoder and Decoder information and they differ.
 
     __init__ args:
-        depth: (int) depth of the model (usually corresponds to embedding size)
+        depth (int): depth of the model (usually corresponds to embedding size)
 
     call args:
-        q: (np.array, tf.tensor) Query matrix
-        k: (np.array, tf.tensor) Key matrix
-        v: (np.array, tf.tensor) Values matrix
-        mask: (np.array, tf.tensor) mask of future attention tokens - must be used
+        q (np.array, tf.tensor): Query matrix
+        k (np.array, tf.tensor): Key matrix
+        v (np.array, tf.tensor): Values matrix
+        mask (np.array, tf.tensor): mask of future attention tokens - must be used
             for in Decoder layers (i.e. GPTLayer's) to prevent attention mechanism
             from peeking into the future (defaults to None)
 
     Returns:
-        attention: (tf.tensor) attention tensor
+        attention (tf.tensor): attention tensor
     """
     def __init__(self, depth, **kwargs):
         super(Attention, self).__init__(**kwargs)
@@ -99,7 +100,7 @@ class Attention(tf.keras.layers.Layer):
         if mask is not None:
             attention = tf.where(mask==1, -1e9, attention)
 
-        attention = tf.nn.softmax(attention)
+        attention = tf.nn.softmax(attention, axis=-1)
         attention = tf.matmul(attention, WV)
         return attention
 
@@ -117,19 +118,19 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     Implements Multi Head Attention as a concatenation of Attention() layers.
 
     __init__args:
-        heads: (int) number of Self-Attention heads
-        depth: (int) depth of the model (corresponds to embedding size)
+        heads (int): number of Self-Attention heads
+        depth (int): depth of the model (corresponds to embedding size)
 
     call args:
-        q: (np.array, tf.tensor) Query matrix
-        k: (np.array, tf.tensor) Key matrix
-        v: (np.array, tf.tensor) Values matrix
-        mask: (np.array, tf.tensor) mask of future attention tokens - must be used
+        q (np.array, tf.tensor): Query matrix
+        k (np.array, tf.tensor): Key matrix
+        v (np.array, tf.tensor): Values matrix
+        mask (np.array, tf.tensor): mask of future attention tokens - must be used
             for in Decoder layers (i.e. GPTLayer's) to prevent attention mechanism
             from peeking into the future (defaults to None)
 
     Returns:
-        attention_output: (tf.tensor) Multi-Head Attention tensor
+        attention_output (tf.tensor): Multi-Head Attention tensor
     """
     def __init__(self, heads, depth, **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
@@ -168,10 +169,10 @@ class TransformerLayer(tf.keras.layers.Layer):
     implementation of BERT-like models.
 
     __init__ args:
-        depth: (int) depth of the model (corresponds to embedding size)
-        num_heads: (int) number of attention heads
-        ff_nodes: (int) size of Dense ReLU layer in Pointwise FF block
-        rate: (float) dropout rate (defaults to 0.1 as in original paper)
+        depth (int): depth of the model (corresponds to embedding size)
+        num_heads (int): number of attention heads
+        ff_nodes (int): size of Dense ReLU layer in Pointwise FF block
+        rate (float): dropout rate (defaults to 0.1 as in original paper)
 
     call args:
         input_tensor: (np.array, tf.tensor) input tensor (usually from PositionalEmbedding layer)
@@ -225,87 +226,57 @@ class TransformerLayer(tf.keras.layers.Layer):
 
 
 @tf.keras.utils.register_keras_serializable()
-class TransformerDecoderLayer(tf.keras.layers.Layer):
+class GPTLayer(tf.keras.layers.Layer):
+    """
+    Narrower version of TransformerLayer() class with implicit application of
+    causal Attention mechanism. To implement GPT models.
 
-    def __init__(self, depth,  heads, ff_nodes, rate=0.1, **kwargs):
-        super(TransformerDecoderLayer, self).__init__(**kwargs)
+    __init__ args:
+        depth (int): depth of the model (corresponds to embedding size)
+        heads (int): number of attention heads
+        ff_nodes (int): size of Dense ReLU layer in Pointwise FF block
+        rate (float): dropout rate (defaults to 0.1)
+
+    call args:
+        input_tensor (np.array, tf.tensor): input tensor (usually from PositionalEmbedding layer)
+
+    Returns:
+        pwff_output: (tf.tensor) Layer output
+    """
+    def __init__(self, depth, heads, ff_nodes, rate=0.1, **kwargs):
+        super(GPTLayer, self).__init__(**kwargs)
         self.depth = depth
         self.heads = heads
         self.ff_nodes = ff_nodes
         self.rate = rate
 
-        self.masked_attention = MultiHeadAttention(heads=heads, depth=depth)
-        self.cross_attention = MultiHeadAttention(heads=heads, depth=depth)
+        self.attention = MultiHeadAttention(heads=heads, depth=depth)
 
         self.pwff1 = tf.keras.layers.Dense(ff_nodes, activation="relu")
         self.pwff2 = tf.keras.layers.Dense(depth, activation='linear')
 
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-        self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
-
         self.dropout1 = tf.keras.layers.Dropout(rate)
         self.dropout2 = tf.keras.layers.Dropout(rate)
-        self.dropout3 = tf.keras.layers.Dropout(rate)
 
-    def call(self, x, context, mask):
-        # First Attention mechanism: masked Self-Attention
-        masked_attention = self.masked_attention(q=x, k=x, v=x, mask=mask)
-        masked_attention = self.dropout1(masked_attention)
-        tensor_attentioned = x + masked_attention
-        tensor_attentioned = self.layernorm1(tensor_attentioned)
-
-        # Second Attention mechanism: Cross-Attention (unmasked)
-        cross_attention = self.cross_attention(q=tensor_attentioned, k=context, v=context)
-        cross_attention = self.dropout2(cross_attention)
-        tensor_attentioned = tensor_attentioned + cross_attention
-        tensor_attentioned = self.layernorm2(tensor_attentioned)
-
-        # Final part is Pointwise FFNN
-        pwff_output = self.pwff1(tensor_attentioned)
-        pwff_output = self.pwff2(pwff_output)
-        pwff_output = self.dropout3(pwff_output)
-        pwff_output = tensor_attentioned + pwff_output
-        pwff_output = self.layernorm3(pwff_output)
-
-        return pwff_output
-
-    def get_config(self):
-        config = super().get_config().copy()
-        config.update({
-            'depth': self.depth,
-            'heads': self.heads,
-            'ff_nodes': self.ff_nodes,
-            'rate': self.rate
-        })
-        return config
-
-
-@tf.keras.utils.register_keras_serializable()
-class GPTLayer(TransformerLayer):
-    """
-    This is a wrapper around TransformerLayer.
-    call() method has just predefined masked attention.
-    """
-    def __init__(self, input_len, depth, num_heads, ff_nodes, rate=0.1):
-        super(GPTLayer, self).__init__(input_len, depth, num_heads, ff_nodes, rate=0.1)
-        self.input_len = input_len
-        self.depth = depth
-        self.num_heads = num_heads
-        self.ff_nodes = ff_nodes
-        self.rate = rate
-
-        self.mask = maximal.generate_attention_mask(input_len)
+    def causal_attention_mask(self, batch_size, seq_len):
+        return 1 - tf.linalg.band_part(tf.ones((batch_size, seq_len, seq_len)), -1, 0)
 
     def call(self, input_tensor):
+
+        # Generate causal mask from input shape
+        mask = self.causal_attention_mask(tf.shape(input_tensor)[0], tf.shape(input_tensor)[1])
+
         # Self-Attention part
-        multihead_attention = self.attention(input_tensor, input_tensor, input_tensor, self.mask)
+        multihead_attention = self.attention(input_tensor, input_tensor, input_tensor, mask)
         multihead_attention = self.dropout1(multihead_attention)
         tensor_attentioned = input_tensor + multihead_attention
         tensor_attentioned = self.layernorm1(tensor_attentioned)
 
         # Pointwise FFNN part
-        pwff_output = self.pointwise_ffnn(tensor_attentioned)
+        pwff_output = self.pwff1(tensor_attentioned)
+        pwff_output = self.pwff2(pwff_output)
         pwff_output = self.dropout2(pwff_output)
         pwff_output = tensor_attentioned + pwff_output
         pwff_output = self.layernorm2(pwff_output)
@@ -315,9 +286,8 @@ class GPTLayer(TransformerLayer):
     def get_config(self):
         config = super().get_config().copy()
         config.update({
-            'input_len': self.input_len,
             'depth': self.depth,
-            'num_heads': self.num_heads,
+            'heads': self.heads,
             'ff_nodes': self.ff_nodes,
             'rate': self.rate
         })
