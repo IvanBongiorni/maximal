@@ -166,20 +166,19 @@ class TransformerLayer(tf.keras.layers.Layer):
     """
     Transformer Encoder Layer.
     It contains only one Self-Attention mechanism, unmasked. Useful for the
-    implementation of BERT-like models.
+    implementation of non-autoregressive models such as BERT.
 
     __init__ args:
-        depth (int): depth of the model (corresponds to embedding size)
-        num_heads (int): number of attention heads
-        ff_nodes (int): size of Dense ReLU layer in Pointwise FF block
-        rate (float): dropout rate (defaults to 0.1 as in original paper)
+        depth: (int) depth of the model (corresponds to embedding size)
+        heads: (int) number of attention heads
+        pwff_nodes: (int) size of Dense ReLU layer in Pointwise FF block
+        rate: (float) dropout probability. Defaults to 0.1 as in original paper
 
     call args:
-        input_tensor: (np.array, tf.tensor) input tensor (usually from PositionalEmbedding layer)
-        mask: (np.array, tf.tensor) mask matrix to mask future tokens (defaults to None)
+        input_tensor (np.array, tf.tensor): input tensor (usually from PositionalEmbedding layer)
 
     Returns:
-        pwff_output: (tf.tensor) Layer output
+        pwff_output (tf.tensor): Layer output
     """
     def __init__(self, depth, heads, ff_nodes, rate=0.1, **kwargs):
         super(TransformerLayer, self).__init__(**kwargs)
@@ -195,12 +194,13 @@ class TransformerLayer(tf.keras.layers.Layer):
 
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
         self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
+
         self.dropout1 = tf.keras.layers.Dropout(rate)
         self.dropout2 = tf.keras.layers.Dropout(rate)
 
-    def call(self, input_tensor, mask=None):
+    def call(self, input_tensor):
         # Self-Attention part
-        multihead_attention = self.attention(input_tensor, input_tensor, input_tensor, mask)
+        multihead_attention = self.attention(input_tensor, input_tensor, input_tensor)
         multihead_attention = self.dropout1(multihead_attention)
         tensor_attentioned = input_tensor + multihead_attention
         tensor_attentioned = self.layernorm1(tensor_attentioned)
