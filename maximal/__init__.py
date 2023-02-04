@@ -4,7 +4,7 @@ import tensorflow as tf
 __version__ = "1.0"
 
 
-def causal_attention_mask(self, batch_size, seq_len):
+def causal_attention_mask(batch_size, seq_len):
     """
     Generates Mask tensor to implement causal Attention mechanism.
 
