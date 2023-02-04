@@ -328,7 +328,7 @@ def generate_text(prompt, n=1000, temperature=1.0, k=10):
     return generated_text
 ```
 
-I will now feed a piece of the famous Amleth's monologue to the GPT and ask it to continue from it:
+I will now feed a piece of the famous Hamlet's monologue to the GPT and ask it to continue from it:
 ```
 prompt = """To be, or not to be, that is the question:
 Whether 'tis nobler in the mind to suffer
