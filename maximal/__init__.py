@@ -1,19 +1,18 @@
 import numpy as np
 import tensorflow as tf
 
-__version__ == "0.4"
+__version__ = "1.0"
 
 
-def generate_attention_mask(seq_len):
+def causal_attention_mask(self, batch_size, seq_len):
     """
-    Taken from a previous version of this official TensorFlow tutorial:
-        https://www.tensorflow.org/text/tutorials/transformer
-    The function disappeared in latest versions
+    Generates Mask tensor to implement causal Attention mechanism.
 
     Args:
-        seq_len: (int) length of the sequence (will be size of attention tensor)
+        batch_size (int): size of the input batch to be attentioned
+        seq_len (int): lenght of the input sequence
 
     Returns:
-        attention tensor (tf.Tensor)
+        (tf.Tensor): causal attention mask
     """
-    return 1 - tf.linalg.band_part(tf.ones((seq_len, seq_len)), -1, 0)
+    return 1 - tf.linalg.band_part(tf.ones((batch_size, seq_len, seq_len)), -1, 0)
