@@ -11,7 +11,7 @@ A TensorFlow-compatible Python library that provides models and layers to implem
   - class [MultiHeadSelfAttention](https://ivanbongiorni.github.io/maximal/elements/multiheadselfattention.html). Multi Head Self-Attention implementation.
   - class [PositionalEmbedding](https://ivanbongiorni.github.io/maximal/elements/positionalembedding.html). Embeddings of tokens end positions.
   - class [TransformerLayer](https://ivanbongiorni.github.io/maximal/elements/transformerlayer.html). Transformer Encoder layer.
-  - class [GPTLayer]((https://ivanbongiorni.github.io/maximal/elements/gptlayer.html)). GPT Layer.
+  - class [GPTLayer](https://ivanbongiorni.github.io/maximal/elements/gptlayer.html). GPT Layer.
 
 - `schedules`
   - class [OriginalTransformerSchedule](https://ivanbongiorni.github.io/maximal/elements/originaltransformerschedule.html). From the original [Transformer paper](https://arxiv.org/abs/1706.03762).
