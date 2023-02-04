@@ -2,7 +2,7 @@
 
 Author: [Ivan Bongiorni](https://github.com/IvanBongiorni) - 2023-02-05
 
-Open this tutorial on [Google Colaboratory]().
+Open this tutorial on [Google Colaboratory](https://drive.google.com/file/d/1GOrseFbhD01E3LGR69y6EFDEx9ZDuP-d/view?usp=sharing).
 
 In this tutorial I will implement a full **GPT** (Generative Pretrained Transformer). This model will be trained, *character by character*, on the complete works of Shakespeare. It will therefore generate *charachter embedding* representations. This will solve the problem of OOV (out-of-vocabulary) tokens.
 

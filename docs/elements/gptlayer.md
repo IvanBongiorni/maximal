@@ -18,4 +18,4 @@ Inherits from [tensorflow.keras.layers.Layer](https://www.tensorflow.org/api_doc
   - (tf.tensor): Layer's output.
 
 ## Used in tutorial
--
+- [Neural Text Generation with a Custom GPT](https://ivanbongiorni.github.io/maximal/tutorials/gpt.html). ([Google Colab](https://drive.google.com/file/d/1GOrseFbhD01E3LGR69y6EFDEx9ZDuP-d/view?usp=sharing))

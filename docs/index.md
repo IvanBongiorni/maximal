@@ -20,7 +20,7 @@ A TensorFlow-compatible Python library that provides models and layers to implem
 
 ## Tutorials
 - [A Transformer Neural Network for Sentiment Analysis](https://ivanbongiorni.github.io/maximal/tutorials/sentiment_analysis.html). ([Google Colab](https://colab.research.google.com/drive/1j0vDhAZX7Ni_sdCDb0C1veMtW3FEXlRD?usp=sharing))
-- [Neural Text Generation with a Custom GPT](https://ivanbongiorni.github.io/maximal/tutorials/gpt.html). ([Google Colab]())
+- [Neural Text Generation with a Custom GPT](https://ivanbongiorni.github.io/maximal/tutorials/gpt.html). ([Google Colab](https://drive.google.com/file/d/1GOrseFbhD01E3LGR69y6EFDEx9ZDuP-d/view?usp=sharing))
 - [Save and load models](https://ivanbongiorni.github.io/maximal/tutorials/save_and_load.html).
 
 <br>
