@@ -11,7 +11,7 @@ A TensorFlow-compatible Python library that provides models and layers to implem
   - class [MultiHeadSelfAttention](https://ivanbongiorni.github.io/maximal/elements/multiheadselfattention.html). Multi Head Self-Attention implementation.
   - class [PositionalEmbedding](https://ivanbongiorni.github.io/maximal/elements/positionalembedding.html). Embeddings of tokens end positions.
   - class [TransformerLayer](https://ivanbongiorni.github.io/maximal/elements/transformerlayer.html). Transformer Encoder layer.
-  - class [GPTLayer]((https://ivanbongiorni.github.io/maximal/elements/gptlayer.html)). GPT Layer.
+  - class [GPTLayer](https://ivanbongiorni.github.io/maximal/elements/gptlayer.html). GPT Layer.
 
 - `schedules`
   - class [OriginalTransformerSchedule](https://ivanbongiorni.github.io/maximal/elements/originaltransformerschedule.html). From the original [Transformer paper](https://arxiv.org/abs/1706.03762).
@@ -20,7 +20,7 @@ A TensorFlow-compatible Python library that provides models and layers to implem
 
 ## Tutorials
 - [A Transformer Neural Network for Sentiment Analysis](https://ivanbongiorni.github.io/maximal/tutorials/sentiment_analysis.html). ([Google Colab](https://colab.research.google.com/drive/1j0vDhAZX7Ni_sdCDb0C1veMtW3FEXlRD?usp=sharing))
-- [Neural Text Generation with a Custom GPT](https://ivanbongiorni.github.io/maximal/tutorials/gpt.html). ([Google Colab]())
+- [Neural Text Generation with a Custom GPT](https://ivanbongiorni.github.io/maximal/tutorials/gpt.html). ([Google Colab](https://drive.google.com/file/d/1GOrseFbhD01E3LGR69y6EFDEx9ZDuP-d/view?usp=sharing))
 - [Save and load models](https://ivanbongiorni.github.io/maximal/tutorials/save_and_load.html).
 
 <br>
