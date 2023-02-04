@@ -26,7 +26,7 @@ SOFTWARE.
 from setuptools import setup, find_packages
 
 classifiers=[
-        'Development Status :: 4 - Beta',   # 3: 'Alpha'; 4: 'Beta'; 5: 'Production/Stable'
+        'Development Status :: 5 - Production/Stable',   # 3: 'Alpha'; 4: 'Beta'; 5: 'Production/Stable'
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering',
@@ -36,7 +36,7 @@ classifiers=[
 
 setup(
     name='maximal',
-    version=0.3,
+    version=1.0,
     description='TensorFlow-compatible Transformer layers and models.',
     #long_description=open('README.md').read() + '\n\n' + open('CHANGELOG.txt').read(),
     url='https://github.com/IvanBongiorni/maximal',
