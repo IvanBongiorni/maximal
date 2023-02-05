@@ -298,6 +298,13 @@ def generate_text(prompt, n=1000, temperature=1.0, k=10):
             (>1. = noisy sampling; <1. = conservative sampling.)
         k (int): restricts to number of top-k tokens to be sampled from
     """
+    # If prompt is shorter than INPUT_LENGTH raise error (no padding in this simple tutorial)
+    assert len(prompt) >= INPUT_LENGTH, f"Prompt must be of {INPUT_LENGTH} character length"
+
+    # If prompt is longer than INPUT_LENGTH crop it to last piece
+    if prompt > INPUT_LENGTH:
+        prompt = prompt[-INPUT_LENGTH:]
+    
     generated_text = []
 
     for i in tqdm(range(n)):
