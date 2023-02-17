@@ -81,6 +81,11 @@ class Attention(tf.keras.layers.Layer):
 
     Returns:
         attention (tf.tensor): attention tensor
+
+    #TODO: in maximal 2.0 change call() args to q and just another arg=None. q,k,v are 
+	redundant and kept just for backward compatibility with 1.0 versions.
+	in future there should be a single q input for self-attention, and a second optional
+	for cross-attention.
     """
     def __init__(self, depth, use_bias=False, **kwargs):
         super(Attention, self).__init__(**kwargs)
@@ -144,6 +149,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
 
     Returns:
         attention_output (tf.tensor): Multi-Head Attention tensor
+
+    #TODO: for future maximal 2.0 see args modifications proposed in Attention()
     """
     def __init__(self, heads, depth, use_bias=False, **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
