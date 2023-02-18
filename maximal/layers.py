@@ -304,10 +304,7 @@ class TransformerDecoderLayer(tf.keras.layers.Layer):
 
         # Masked Self-Attention part
         masked_attention = self.masked_attention(
-            q = input_tensor,
-            k = None,
-            v = None,
-            mask = mask
+            q=input_tensor, k=None, v=None, mask=mask
         )
         masked_attention = self.dropout1(masked_attention)
         tensor_attentioned = input_tensor + masked_attention
@@ -315,10 +312,7 @@ class TransformerDecoderLayer(tf.keras.layers.Layer):
 
         # Cross-Attention part
         cross_attention = self.cross_attention(
-            q = input_tensor,
-            k = encoder_output,
-            v = encoder_output,
-            mask = None
+            q=tensor_attentioned, k=encoder_output, v=encoder_output, mask=None
         )
         cross_attention = self.dropout2(cross_attention)
         tensor_attentioned = tensor_attentioned + cross_attention
