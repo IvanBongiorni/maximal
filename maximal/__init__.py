@@ -1,7 +1,15 @@
 import numpy as np
 import tensorflow as tf
 
-__version__ = "1.0"
+__version__ = "1.1"
+
+from maximal import layers
+from maximal import schedules
+from maximal import models
+
+from maximal.layers import *
+from maximal.schedules import *
+from maximal.models import *
 
 
 def causal_attention_mask(batch_size, seq_len):
