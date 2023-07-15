@@ -51,23 +51,3 @@ def test_save_and_load():
     dummy_model = load(os.path.join(os.getcwd(), "test_data", model_name))
     assert isinstance(dummy_model, tf.keras.models.Model)
 
-
-def test_output_shape_positionalembedding():
-    assert True
-
-
-def test_output_shape_attention():
-    assert True
-
-
-def test_output_shape_multiheadattention():
-    assert True
-
-
-def test_output_shape_transformerlayer():
-    assert True
-
-
-def test_output_shape_gptlayer():
-    assert true
-
