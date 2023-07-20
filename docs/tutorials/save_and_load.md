@@ -20,10 +20,12 @@ model.save("./path/to/model.h5")
 
 The `.h5` file extension is optional.
 
-For loading the same model:
+To load the same model:
 
 ```
-model = tf.keras.models.load_model('path/to/model.h5')
+from maximal.models import load
+
+model = load('path/to/model.h5')
 ```
 
-Future releases of maximal will implement saving and loading functions and a `.maximal` model format.
+Future releases of maximal will include a `.maximal` model format.

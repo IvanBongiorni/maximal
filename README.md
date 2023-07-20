@@ -2,7 +2,7 @@
 
 See the [Official Documentation site](https://ivanbongiorni.github.io/maximal/)
 
-Current version: **1.0**
+Current version: **1.1**
 
 A TensorFlow-compatible Python library that provides models and layers to implement custom Transformer neural networks.
 
@@ -54,6 +54,7 @@ In `schedules.py`:
 
 # Requirements
 ```
+h5py
 numpy
 tensorflow >= 2.0
 ```
