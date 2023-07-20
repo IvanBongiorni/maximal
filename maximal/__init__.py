@@ -12,7 +12,7 @@ from maximal.schedules import *
 from maximal.models import *
 
 
-def causal_attention_mask(batch_size, seq_len):
+def causal_attention_mask(batch_size: int, seq_len: int):
     """
     Generates Mask tensor to implement causal Attention mechanism.
 

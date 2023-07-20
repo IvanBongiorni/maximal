@@ -4,9 +4,9 @@ This submodule is currently used for functions to load TensorFlow models that co
 Future releases will contain full Maximal models inherited from tf.keras.models.Model class
 """
 import json
-import h5py
 import warnings
 
+import h5py
 import numpy as np
 import tensorflow as tf
 import maximal
@@ -30,16 +30,16 @@ def load(path: str):
     config = json.loads(model_config)
 
     # Extract list of unique custom layers
-    layers = config['config']['layers']
-    layers = [layer['class_name'] for layer in layers]
-    layers = list(filter(lambda layer: layer.startswith("Custom"), layers))
-    layers = [layer.replace("Custom>", "") for layer in layers]
-    layers = list(set(layers))
+    model_layers = config['config']['layers']
+    model_layers = [layer['class_name'] for layer in model_layers]
+    model_layers = list(filter(lambda layer: layer.startswith("Custom"), model_layers))
+    model_layers = [layer.replace("Custom>", "") for layer in model_layers]
+    model_layers = list(set(model_layers))
 
-    if len(layers) > 0:
+    if len(model_layers) > 0:
         # Produce list of custom objects to be loaded in tf model
         custom_objects = {}
-        for layer in layers:
+        for layer in model_layers:
             custom_objects[layer] = getattr(maximal.layers, layer)
 
         # Model with custom objects can now be loaded without issues
