@@ -36,7 +36,7 @@ classifiers=[
 
 setup(
     name='maximal',
-    version=1.0,
+    version=1.1,
     description='TensorFlow-compatible Transformer layers and models.',
     #long_description=open('README.md').read() + '\n\n' + open('CHANGELOG.txt').read(),
     url='https://github.com/IvanBongiorni/maximal',
@@ -47,6 +47,7 @@ setup(
     long_description=open('README.md').read(),
     packages=find_packages(),
     install_requires=[
+        'h5py',
         'numpy',
         'tensorflow>=2.0'
     ]
