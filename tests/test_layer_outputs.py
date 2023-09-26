@@ -9,9 +9,8 @@ import pytest
 import numpy as np
 import tensorflow as tf
 from maximal.layers import (
-    PositionalEmbedding,
-    Attention,
-    MultiHeadAttention,
+    PositionalEmbedding, ImageEmbedding,
+    Attention, MultiHeadAttention,
     TransformerLayer,
     GPTLayer
 )
@@ -27,6 +26,18 @@ def test_output_positionalembedding(maxlen, vocab_size, depth):
 
     # Call the layer
     layer = PositionalEmbedding(maxlen=maxlen, vocab_size=vocab_size, depth=depth)
+    output = layer(x)
+
+    # Check the output shape and dtype
+    assert output.shape == (batch_size, sequence_length, depth)
+    assert output.dtype == tf.float32
+
+
+def test_output_imageembedding(maxlen, vocab_size, depth):
+    # Create a random input tensor
+    x = np.random.randint(0, 100, (32, 28, 28, 3))
+
+    layer = ImageEmbedding(image_shape=[28, 28], patch_size=4, depth=32, padding="SAME")
     output = layer(x)
 
     # Check the output shape and dtype
