@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-__version__ = "1.1"
+__version__ = "1.2.1"
 
 from maximal import layers
 from maximal import schedules
