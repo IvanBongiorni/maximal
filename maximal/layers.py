@@ -11,6 +11,9 @@ Layers:
 TODO:
 expand with: TransformerDecoderLayer(), FNetLayer
 """
+import math
+from typing import Union, Iterable
+
 import numpy as np
 import tensorflow as tf
 
@@ -29,7 +32,7 @@ class PositionalEmbedding(tf.keras.layers.Layer):
     Returns:
         embedding (tf.tensor): Transformer Embeddings (word meaning + position)
     """
-    def __init__(self, maxlen, vocab_size, depth, **kwargs):
+    def __init__(self, maxlen: int, vocab_size: int, depth: int, **kwargs):
         super(PositionalEmbedding, self).__init__(**kwargs)
         self.maxlen = maxlen
         self.vocab_size = vocab_size
@@ -38,7 +41,7 @@ class PositionalEmbedding(tf.keras.layers.Layer):
         self.token_embedding = tf.keras.layers.Embedding(input_dim=vocab_size, output_dim=depth)
         self.position_embedding = tf.keras.layers.Embedding(input_dim=maxlen, output_dim=depth)
 
-    def call(self, x):
+    def call(self, x: Union[np.array, tf.Tensor]):
         positions = tf.range(start=0, limit=tf.shape(x)[-1], delta=1)
         learned_positions = self.position_embedding(positions)
         embedding = self.token_embedding(x)
@@ -51,6 +54,85 @@ class PositionalEmbedding(tf.keras.layers.Layer):
             'maxlen': self.maxlen,
             'vocab_size': self.vocab_size,
             'depth': self.depth
+        })
+        return config
+
+
+@tf.keras.utils.register_keras_serializable()
+class ImageEmbedding(tf.keras.layers.Layer):
+    """
+        Embedding layer for image inputs.
+        Embeddings are positions: each patch is linearly projected to a 1D vector of the same size of
+        position embeddings. The two are then added together to produce embeddings of image patches
+        that also contain information on the relative position of the patch.
+
+        __init__ args:
+            image_shape (height, width, channels): size of input images
+            patch_size (int): size of a squared image patch
+            depth (int): Embedding dimensions, i.e. depth of model representations
+            padding (str): how to pad images of unexpected shape. Options: 'SAME'=zero pad image; 'VALID'=truncate image
+
+        call args:
+            inputs (np.array, tf.Tensor): batch of input images of shape: [ batch_size, height, width, channels ]
+        """
+    def __init__(self,
+                 image_shape: Iterable[int],
+                 patch_size: int,
+                 depth: int,
+                 padding: str = "SAME",
+                 **kwargs
+                 ):
+        super(ImageEmbedding, self).__init__(**kwargs)
+
+        self.image_shape = image_shape
+        self.patch_size = patch_size
+        self.depth = depth
+        self.padding = padding
+
+        # From image_shape and patch_size find the fixed number of image patches per observation
+        if padding == "SAME":
+            num_patches = math.ceil(image_shape[0]/patch_size) * math.ceil(image_shape[1]/patch_size)
+        elif padding == "VALID":
+            num_patches = math.floor(image_shape[0] / patch_size) * math.floor(image_shape[1] / patch_size)
+        else:
+            raise Exception("Invalid argument in ImageEmbedding maximal.layer: 'padding' must be either 'VALID' or 'SAME'.")
+
+        self.num_patches = num_patches
+
+        self.linear_projection = tf.keras.layers.Dense(depth, activation='linear')
+        self.embedding = tf.keras.layers.Embedding(num_patches, depth)
+
+    def call(self, inputs: Union[np.array, tf.Tensor]):
+        # Extract image patches
+        batch_size = tf.shape(inputs)[0]
+
+        patches = tf.image.extract_patches(
+            images=inputs,
+            sizes=[1, self.patch_size, self.patch_size, 1],
+            strides=[1, self.patch_size, self.patch_size, 1],
+            rates=[1, 1, 1, 1],
+            padding=self.padding
+        )
+
+        # Reshape to [ batch_size, num_patches, flattened_patch_size ]
+        patches = tf.reshape(patches, [batch_size, -1, patches.shape[-1]])
+
+        # Generate representations of patches and positions, add together
+        patches = self.linear_projection(patches)
+        positions = tf.range(start=0, limit=self.num_patches, delta=1)
+        position_embeddings = self.embedding(positions)
+        image_embeddings = patches + position_embeddings
+
+        return image_embeddings
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'image_shape': self.image_shape,
+            'patch_size': self.patch_size,
+            'depth': self.depth,
+            'padding': self.padding,
+            'num_patches': num_patches
         })
         return config
 
@@ -78,7 +160,8 @@ class Attention(tf.keras.layers.Layer):
     Returns:
         attention (tf.tensor): attention tensor
     """
-    def __init__(self, depth, **kwargs):
+
+    def __init__(self, depth: int, **kwargs):
         super(Attention, self).__init__(**kwargs)
         self.depth = depth
 
@@ -86,19 +169,23 @@ class Attention(tf.keras.layers.Layer):
         self.dense_k = tf.keras.layers.Dense(depth, activation='linear')
         self.dense_v = tf.keras.layers.Dense(depth, activation='linear')
 
-    def call(self, q, k, v, mask=None):
+    def call(self,
+             q: Union[np.array, tf.Tensor],
+             k: Union[np.array, tf.Tensor],
+             v: Union[np.array, tf.Tensor],
+             mask: Union[np.array, tf.Tensor, None] = None):
         WQ = self.dense_q(q)
         WV = self.dense_v(v)
         WK = self.dense_k(k)
 
         # Scaled Dot-Product Attention
-        d_k = tf.cast(tf.shape(WK)[-1], tf.float32) # cast to float32 prevents error
+        d_k = tf.cast(tf.shape(WK)[-1], tf.float32)  # cast to float32 prevents error
 
         attention = tf.matmul(WQ, WK, transpose_b=True)
         attention = attention / tf.math.sqrt(d_k)
 
         if mask is not None:
-            attention = tf.where(mask==1, -1e9, attention)
+            attention = tf.where(mask == 1, -1e9, attention)
 
         attention = tf.nn.softmax(attention, axis=-1)
         attention = tf.matmul(attention, WV)
@@ -132,7 +219,8 @@ class MultiHeadAttention(tf.keras.layers.Layer):
     Returns:
         attention_output (tf.tensor): Multi-Head Attention tensor
     """
-    def __init__(self, heads, depth, **kwargs):
+
+    def __init__(self, heads: int, depth: int, **kwargs):
         super(MultiHeadAttention, self).__init__(**kwargs)
         self.heads = heads
         self.depth = depth
@@ -141,7 +229,11 @@ class MultiHeadAttention(tf.keras.layers.Layer):
         self.concat = tf.keras.layers.Concatenate(axis=-1)
         self.dense = tf.keras.layers.Dense(depth, activation='linear')
 
-    def call(self, q, k, v, mask=None):
+    def call(self,
+             q: Union[np.array, tf.Tensor],
+             k: Union[np.array, tf.Tensor],
+             v: Union[np.array, tf.Tensor],
+             mask: Union[np.array, tf.Tensor, None] = None):
         # Iterate call of each Self-Attention layer in self.attention_heads list
         attention_results = []
         for layer in self.attention_heads:
@@ -180,7 +272,13 @@ class TransformerLayer(tf.keras.layers.Layer):
     Returns:
         pwff_output (tf.tensor): Layer output
     """
-    def __init__(self, depth, heads, ff_nodes, rate=0.1, **kwargs):
+
+    def __init__(self,
+                 depth: int,
+                 heads: int,
+                 ff_nodes: int,
+                 rate: float = 0.1,
+                 **kwargs):
         super(TransformerLayer, self).__init__(**kwargs)
         self.depth = depth
         self.heads = heads
@@ -198,7 +296,7 @@ class TransformerLayer(tf.keras.layers.Layer):
         self.dropout1 = tf.keras.layers.Dropout(rate)
         self.dropout2 = tf.keras.layers.Dropout(rate)
 
-    def call(self, input_tensor):
+    def call(self, input_tensor: Union[np.array, tf.Tensor]):
         # Self-Attention part
         multihead_attention = self.attention(input_tensor, input_tensor, input_tensor)
         multihead_attention = self.dropout1(multihead_attention)
@@ -243,7 +341,8 @@ class GPTLayer(tf.keras.layers.Layer):
     Returns:
         pwff_output: (tf.tensor) Layer output
     """
-    def __init__(self, depth, heads, ff_nodes, rate=0.1, **kwargs):
+
+    def __init__(self, depth: int, heads: int, ff_nodes: int, rate: float = 0.1, **kwargs):
         super(GPTLayer, self).__init__(**kwargs)
         self.depth = depth
         self.heads = heads
@@ -263,8 +362,7 @@ class GPTLayer(tf.keras.layers.Layer):
     def causal_attention_mask(self, batch_size, seq_len):
         return 1 - tf.linalg.band_part(tf.ones((batch_size, seq_len, seq_len)), -1, 0)
 
-    def call(self, input_tensor):
-
+    def call(self, input_tensor: Union[np.array, tf.Tensor]):
         # Generate causal mask from input shape
         mask = self.causal_attention_mask(tf.shape(input_tensor)[0], tf.shape(input_tensor)[1])
 

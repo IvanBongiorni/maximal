@@ -2,7 +2,7 @@
 
 See the [Official Documentation site](https://ivanbongiorni.github.io/maximal/)
 
-Current version: **1.1**
+Current version: **1.2.1**
 
 A TensorFlow-compatible Python library that provides models and layers to implement custom Transformer neural networks.
 
@@ -24,7 +24,7 @@ pip install maximal
 `maximal` is commonly called as:
 
 ```
-import maximal
+import maximal as ml
 from maximal.layers import TransformerLayer, GPTLayer
 ```
 
@@ -33,6 +33,8 @@ and can be used in a `tf.keras` model as any common layer.
 
 # Documentation
 An [Official Website](https://ivanbongiorni.github.io/maximal/) is now available with documentation and tutorials.
+
+PyPI link is available [here](https://pypi.org/project/maximal/1.0/.
 
 
 # Elements
@@ -43,6 +45,8 @@ In `layers.py`:
 - `MultiHeadSelfAttention`: `keras.Layer`, it is a concatenation of `SelfAttention` layers, resized back to original input shape through linear transformation.
 
 - `PositionalEmbedding`: `keras.Layer`, implements double Embedding layers used in Transformers literature, for tokens and positions. Positional encoding is learned through a `tf.keras.layers.Embedding()` layer, instead of deterministic positional encoding in the original paper.
+
+- `ImageEmbedding`: `keras.Layer`, implements double Embedding layers used as inputs of Vision Transformers, for image patches and positions.
 
 - `TransformerLayer`: `keras.Layer` single Transformer Encoder piece. It can be used inside any `Sequential()` model in Keras.
 

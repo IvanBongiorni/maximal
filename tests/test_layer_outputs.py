@@ -9,12 +9,13 @@ import pytest
 import numpy as np
 import tensorflow as tf
 from maximal.layers import (
-    PositionalEmbedding,
-    Attention,
-    MultiHeadAttention,
+    PositionalEmbedding, ImageEmbedding,
+    Attention, MultiHeadAttention,
     TransformerLayer,
     GPTLayer
 )
+
+from pdb import set_trace as BP
 
 
 @pytest.mark.parametrize("maxlen, vocab_size, depth", [(10, 50, 64), (15, 100, 32)])
@@ -27,6 +28,32 @@ def test_output_positionalembedding(maxlen, vocab_size, depth):
 
     # Call the layer
     layer = PositionalEmbedding(maxlen=maxlen, vocab_size=vocab_size, depth=depth)
+    output = layer(x)
+
+    # Check the output shape and dtype
+    assert output.shape == (batch_size, sequence_length, depth)
+    assert output.dtype == tf.float32
+
+
+def test_output_imageembedding():
+    batch_size = 32
+    image_size = 28
+
+    patch_size = 4
+    depth = 32
+
+    sequence_length = (image_size / patch_size) **2
+    sequence_length = int(sequence_length)
+
+    # Create a random input tensor
+    x = np.random.randint(0, 100, (batch_size, image_size, image_size, 3))
+
+    layer = ImageEmbedding(
+        image_shape=[image_size, image_size],
+        patch_size=patch_size,
+        depth=depth,
+        padding="SAME"
+    )
     output = layer(x)
 
     # Check the output shape and dtype
