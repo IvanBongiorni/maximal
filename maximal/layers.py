@@ -61,20 +61,20 @@ class PositionalEmbedding(tf.keras.layers.Layer):
 @tf.keras.utils.register_keras_serializable()
 class ImageEmbedding(tf.keras.layers.Layer):
     """
-    Embedding layer for image inputs.
-    Embeddings are positions: each patch is linearly projected to a 1D vector of the same size of
-    position embeddings. The two are then added together to produce embeddings of image patches
-    that also contain information on the relative position of the patch.
+        Embedding layer for image inputs.
+        Embeddings are positions: each patch is linearly projected to a 1D vector of the same size of
+        position embeddings. The two are then added together to produce embeddings of image patches
+        that also contain information on the relative position of the patch.
 
-    __init__ args:
-        image_shape (height, width, channels): size of input images
-        patch_size (int): size of a squared image patch
-        depth (int): Embedding dimensions, i.e. depth of model representations
-        padding (str): how to pad images of unexpected shape. Options: 'SAME'=zero pad image; 'VALID'=truncate image
+        __init__ args:
+            image_shape (height, width, channels): size of input images
+            patch_size (int): size of a squared image patch
+            depth (int): Embedding dimensions, i.e. depth of model representations
+            padding (str): how to pad images of unexpected shape. Options: 'SAME'=zero pad image; 'VALID'=truncate image
 
-    call args:
-        inputs (np.array, tf.Tensor): batch of input images of shape: [ batch_size, height, width, channels ]
-    """
+        call args:
+            inputs (np.array, tf.Tensor): batch of input images of shape: [ batch_size, height, width, channels ]
+        """
     def __init__(self,
                  image_shape: Iterable[int],
                  patch_size: int,
@@ -95,7 +95,9 @@ class ImageEmbedding(tf.keras.layers.Layer):
         elif padding == "VALID":
             num_patches = math.floor(image_shape[0] / patch_size) * math.floor(image_shape[1] / patch_size)
         else:
-            raise Exception("Invalid argument in ImageEmbedding: 'padding' must be either 'VALID' or 'SAME'.")
+            raise Exception("Invalid argument in ImageEmbedding maximal.layer: 'padding' must be either 'VALID' or 'SAME'.")
+
+        self.num_patches = num_patches
 
         self.linear_projection = tf.keras.layers.Dense(depth, activation='linear')
         self.embedding = tf.keras.layers.Embedding(num_patches, depth)
@@ -117,10 +119,8 @@ class ImageEmbedding(tf.keras.layers.Layer):
 
         # Generate representations of patches and positions, add together
         patches = self.linear_projection(patches)
-
-        positions = tf.range(start=0, limit=tf.shape(patches)[1], delta=1)
+        positions = tf.range(start=0, limit=self.num_patches, delta=1)
         position_embeddings = self.embedding(positions)
-
         image_embeddings = patches + position_embeddings
 
         return image_embeddings
@@ -131,7 +131,8 @@ class ImageEmbedding(tf.keras.layers.Layer):
             'image_shape': self.image_shape,
             'patch_size': self.patch_size,
             'depth': self.depth,
-            'padding': self.padding
+            'padding': self.padding,
+            'num_patches': num_patches
         })
         return config
 
