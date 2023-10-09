@@ -15,6 +15,8 @@ from maximal.layers import (
     GPTLayer
 )
 
+from pdb import set_trace as BP
+
 
 @pytest.mark.parametrize("maxlen, vocab_size, depth", [(10, 50, 64), (15, 100, 32)])
 def test_output_positionalembedding(maxlen, vocab_size, depth):
@@ -33,11 +35,25 @@ def test_output_positionalembedding(maxlen, vocab_size, depth):
     assert output.dtype == tf.float32
 
 
-def test_output_imageembedding(maxlen, vocab_size, depth):
-    # Create a random input tensor
-    x = np.random.randint(0, 100, (32, 28, 28, 3))
+def test_output_imageembedding():
+    batch_size = 32
+    image_size = 28
 
-    layer = ImageEmbedding(image_shape=[28, 28], patch_size=4, depth=32, padding="SAME")
+    patch_size = 4
+    depth = 32
+
+    sequence_length = (image_size / patch_size) **2
+    sequence_length = int(sequence_length)
+
+    # Create a random input tensor
+    x = np.random.randint(0, 100, (batch_size, image_size, image_size, 3))
+
+    layer = ImageEmbedding(
+        image_shape=[image_size, image_size],
+        patch_size=patch_size,
+        depth=depth,
+        padding="SAME"
+    )
     output = layer(x)
 
     # Check the output shape and dtype

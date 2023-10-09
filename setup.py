@@ -36,7 +36,7 @@ classifiers=[
 
 setup(
     name='maximal',
-    version=1.2.1,
+    version='1.2.1',
     description='TensorFlow-compatible Transformer layers and models.',
     #long_description=open('README.md').read() + '\n\n' + open('CHANGELOG.txt').read(),
     url='https://github.com/IvanBongiorni/maximal',
