@@ -17,7 +17,7 @@ class OriginalTransformerSchedule(tf.keras.optimizers.schedules.LearningRateSche
     """
     def __init__(self, depth, warmup_steps=4000):
         super(OriginalTransformerSchedule, self).__init__()
-        self.depth = np.float32(depth) #tf.cast(depth, tf.float32)
+        self.depth = tf.cast(depth, tf.float32)
         self.warmup_steps = warmup_steps
 
     def __call__(self, step):
