@@ -77,7 +77,6 @@ model = Sequential([
 ```
 We are now ready to compile our `model`:
 ```
-# Set learning rate schedule
 model.compile(
     optimizer = tf.keras.optimizers.Adam(),
     loss = tf.keras.losses.SparseCategoricalCrossentropy(),
