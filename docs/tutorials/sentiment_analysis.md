@@ -33,7 +33,6 @@ Additionally, the learning rate schedule of the [original Transformer paper](htt
 ```
 import maximal
 from maximal.layers import PositionalEmbedding, TransformerLayer
-from maximal.schedules import OriginalTransformerSchedule
 ```
 
 <br>
@@ -78,11 +77,8 @@ model = Sequential([
 ```
 We are now ready to compile our `model`:
 ```
-# Set learning rate schedule
-transformer_schedule = OriginalTransformerSchedule(model_depth)
-
 model.compile(
-    optimizer = tf.keras.optimizers.Adam(learning_rate=transformer_schedule),
+    optimizer = tf.keras.optimizers.Adam(),
     loss = tf.keras.losses.SparseCategoricalCrossentropy(),
     metrics=["accuracy"]
 )

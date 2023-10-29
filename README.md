@@ -52,9 +52,7 @@ In `layers.py`:
 
 - `GPTLayer`: `keras.Layer` GPT block. Similar to `TransformerLayer` but with causal Attention mechanism. It can be used inside any `Sequential()` model in Keras.
 
-
-In `schedules.py`:
-- `OriginalTransformerSchedule`: `keras.Layer` implements the learning rate schedule of the original Transformer paper. It is taken from this [official TensorFlow tutorial](https://www.tensorflow.org/text/tutorials/transformer).
+Coming soon: `models.py`.
 
 # Requirements
 ```

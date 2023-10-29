@@ -1,6 +1,6 @@
 
 # Official Documentation.
-Version: **1.0**
+Version: **1.2.1**
 
 A TensorFlow-compatible Python library that provides models and layers to implement custom Transformer neural networks. Built on [TensorFlow 2](https://www.tensorflow.org/api_docs/python/tf).
 
@@ -10,11 +10,9 @@ A TensorFlow-compatible Python library that provides models and layers to implem
   - class [SelfAttention](https://ivanbongiorni.github.io/maximal/elements/selfattention.html). Self-Attention implementation.
   - class [MultiHeadSelfAttention](https://ivanbongiorni.github.io/maximal/elements/multiheadselfattention.html). Multi Head Self-Attention implementation.
   - class [PositionalEmbedding](https://ivanbongiorni.github.io/maximal/elements/positionalembedding.html). Embeddings of tokens end positions.
+  - class [ImageEmbedding](https://ivanbongiorni.github.io/maximal/elements/imageembedding.html). Embeddings of image patches, to build Vision Transformer models.
   - class [TransformerLayer](https://ivanbongiorni.github.io/maximal/elements/transformerlayer.html). Transformer Encoder layer.
   - class [GPTLayer](https://ivanbongiorni.github.io/maximal/elements/gptlayer.html). GPT Layer.
-
-- `schedules`
-  - class [OriginalTransformerSchedule](https://ivanbongiorni.github.io/maximal/elements/originaltransformerschedule.html). From the original [Transformer paper](https://arxiv.org/abs/1706.03762).
 
 - `models` (coming soon)
 
